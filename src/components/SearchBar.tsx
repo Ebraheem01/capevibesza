@@ -15,10 +15,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, Users, Search, Wallet } from "lucide-react";
 import { useState } from "react";
+import { searchActivities } from "@/services/openai";
+import { toast } from "sonner";
 
-const SearchBar = () => {
+interface SearchBarProps {
+  onResults: (results: ActivityResult[]) => void;
+}
+
+const SearchBar = ({ onResults }: SearchBarProps) => {
   const [date, setDate] = useState<Date>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [budget, setBudget] = useState<string | undefined>(undefined);
+  const [people, setPeople] = useState<string | undefined>(undefined);
+  const [childFriendly, setChildFriendly] = useState<string | undefined>(undefined);
 
   const categories = [
     "Food & Drinks",
@@ -30,6 +39,22 @@ const SearchBar = () => {
     "Adventure",
     "Nature",
   ];
+
+  const handleSearch = async () => {
+    try {
+      const results = await searchActivities(
+        searchQuery,
+        date,
+        budget,
+        people,
+        childFriendly
+      );
+      onResults(results);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Failed to search activities. Please try again.");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-4xl">
@@ -62,7 +87,7 @@ const SearchBar = () => {
           </PopoverContent>
         </Popover>
 
-        <Select>
+        <Select onValueChange={setBudget}>
           <SelectTrigger className="w-full md:w-[200px]">
             <Wallet className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Budget" />
@@ -77,7 +102,7 @@ const SearchBar = () => {
           </SelectContent>
         </Select>
 
-        <Select>
+        <Select onValueChange={setPeople}>
           <SelectTrigger className="w-full md:w-[200px]">
             <Users className="mr-2 h-4 w-4" />
             <SelectValue placeholder="People" />
@@ -92,7 +117,7 @@ const SearchBar = () => {
           </SelectContent>
         </Select>
 
-        <Select>
+        <Select onValueChange={setChildFriendly}>
           <SelectTrigger className="w-full md:w-[200px]">
             <Users className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Child Friendly" />
@@ -103,7 +128,7 @@ const SearchBar = () => {
           </SelectContent>
         </Select>
 
-        <Button className="w-full md:w-[120px]">
+        <Button className="w-full md:w-[120px]" onClick={handleSearch}>
           Search
         </Button>
       </div>
