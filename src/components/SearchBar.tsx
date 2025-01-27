@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, Users, Search, Wallet } from "lucide-react";
 import { useState } from "react";
-import { searchActivities } from "@/services/openai";
+import { searchActivities, ActivityResult } from "@/services/openai";
 import { toast } from "sonner";
 
 interface SearchBarProps {
